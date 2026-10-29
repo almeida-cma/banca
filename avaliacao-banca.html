@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📋 Avaliação da Banca — Notas e Classificação</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    min-height: 100vh;
+    padding: 16px 10px 100px;
+    color: #1e293b;
+  }
+
+  .container { max-width: 1400px; margin: 0 auto; }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, #f7971e, #ffd200);
+    border-radius: 18px;
+    padding: 24px 20px;
+    margin-bottom: 18px;
+    text-align: center;
+    color: #1a1a2e;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  }
+  .header h1 { font-size: 1.4rem; margin-bottom: 6px; font-weight: 800; }
+  .header p { font-size: 0.85rem; opacity: 0.9; }
+  .badge-group {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    justify-content: center; margin-top: 12px;
+  }
+  .badge {
+    background: rgba(0,0,0,0.12);
+    padding: 4px 12px; border-radius: 20px;
+    font-size: 0.7rem; font-weight: 700;
+  }
+
+  /* BARRA DE AÇÕES */
+  .acoes {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+  .btn {
+    background: linear-gradient(135deg, #f7971e, #ffd200);
+    color: #1a1a2e; border: none;
+    padding: 10px 18px; border-radius: 24px;
+    font-size: 0.82rem; font-weight: 800;
+    cursor: pointer; font-family: inherit;
+    transition: 0.2s;
+    box-shadow: 0 4px 12px rgba(247,151,30,0.3);
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(247,151,30,0.5); }
+  .btn-secondary { background: linear-gradient(135deg, #64748b, #475569); color: #fff; }
+  .btn-success { background: linear-gradient(135deg, #10b981, #059669); color: #fff; }
+  .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; }
+  .btn-whats { background: linear-gradient(135deg, #25D366, #128C7E); color: #fff; }
+
+  /* TABELA */
+  .tabela-wrapper {
+    background: #fff;
+    border-radius: 16px;
+    padding: 14px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    overflow-x: auto;
+    margin-bottom: 18px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.78rem;
+    min-width: 800px;
+  }
+  thead th {
+    background: linear-gradient(135deg, #203a43, #2c5364);
+    color: #fff;
+    padding: 10px 6px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.72rem;
+    position: sticky; top: 0;
+  }
+  thead th:first-child { border-radius: 8px 0 0 0; }
+  thead th:last-child { border-radius: 0 8px 0 0; }
+  tbody td {
+    padding: 6px 4px;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: center;
+    vertical-align: middle;
+  }
+  tbody tr:nth-child(even) { background: #f8fafc; }
+  tbody tr:hover { background: #fff7ed; }
+
+  .col-equipe { text-align: left; padding-left: 10px !important; }
+  .input-equipe {
+    width: 100%; min-width: 140px;
+    padding: 6px 8px; border: 2px solid #e2e8f0;
+    border-radius: 6px; font-size: 0.78rem;
+    font-family: inherit;
+  }
+  .input-equipe:focus { border-color: #f7971e; outline: none; }
+
+  .input-nota {
+    width: 52px; padding: 6px 4px;
+    border: 2px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 0.82rem; font-weight: 700;
+    text-align: center;
+    font-family: inherit;
+  }
+  .input-nota:focus { border-color: #f7971e; outline: none; }
+
+  .nota-final {
+    font-weight: 900;
+    font-size: 0.9rem;
+    color: #0f766e;
+    background: #dcfce7;
+    padding: 6px 8px;
+    border-radius: 6px;
+    display: inline-block;
+    min-width: 48px;
+  }
+  .nota-final.baixa { background: #fee2e2; color: #991b1b; }
+  .nota-final.media { background: #fef3c7; color: #92400e; }
+
+  .btn-remover {
+    background: #ef4444; color: #fff;
+    border: none; width: 26px; height: 26px;
+    border-radius: 50%; cursor: pointer;
+    font-weight: 700; font-size: 0.9rem;
+    line-height: 1;
+  }
+  .btn-remover:hover { background: #dc2626; }
+
+  /* RANKING */
+  .ranking-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    margin-bottom: 18px;
+  }
+  .ranking-card h2 {
+    color: #7c3aed;
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px dashed #e2e8f0;
+  }
+  .ranking-item {
+    display: flex; align-items: center;
+    gap: 10px; padding: 8px 10px;
+    border-radius: 8px; margin-bottom: 6px;
+    background: #f8fafc;
+    font-size: 0.85rem;
+  }
+  .ranking-item .pos {
+    background: linear-gradient(135deg, #f7971e, #ffd200);
+    color: #1a1a2e;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    text-align: center; line-height: 26px;
+    font-weight: 800; font-size: 0.75rem;
+    flex-shrink: 0;
+  }
+  .ranking-item .nome { flex: 1; font-weight: 600; }
+  .ranking-item .nota {
+    font-weight: 900; color: #0f766e;
+    font-size: 0.95rem;
+  }
+
+  /* ORIENTAÇÕES */
+  .orientacoes {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  }
+  .orientacoes h2 {
+    color: #7c3aed;
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px dashed #e2e8f0;
+  }
+  .orientacoes ol { margin-left: 20px; }
+  .orientacoes li {
+    font-size: 0.82rem; line-height: 1.6;
+    margin-bottom: 8px; color: #334155;
+  }
+  .formula {
+    background: #f0fdfa;
+    border-left: 4px solid #14b8a6;
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin: 12px 0;
+    font-size: 0.82rem;
+    color: #0f766e;
+    font-family: monospace;
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 20px; left: 50%;
+    transform: translateX(-50%);
+    background: #1e293b; color: #fff;
+    padding: 12px 22px; border-radius: 24px;
+    font-size: 0.85rem; font-weight: 700;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    opacity: 0; transition: opacity 0.3s;
+    pointer-events: none; z-index: 999;
+  }
+  .toast.show { opacity: 1; }
+
+  /* RESPONSIVO */
+  @media (max-width: 700px) {
+    .header h1 { font-size: 1.1rem; }
+    .btn { font-size: 0.75rem; padding: 8px 14px; }
+    table { font-size: 0.72rem; min-width: 700px; }
+    .input-nota { width: 44px; font-size: 0.75rem; }
+  }
+
+  /* IMPRESSÃO / PDF */
+  @media print {
+    body { background: #fff; padding: 0; }
+    .acoes, .btn, .toast, .btn-remover { display: none !important; }
+    .header { box-shadow: none; border-radius: 0; }
+    .tabela-wrapper, .ranking-card, .orientacoes {
+      box-shadow: none; border: 1px solid #cbd5e1;
+      page-break-inside: avoid;
+    }
+    table { font-size: 9pt; min-width: auto; }
+    .input-nota, .input-equipe {
+      border: none; background: transparent;
+      font-size: 9pt; padding: 0;
+    }
+    .nota-final { background: transparent !important; }
+    @page { size: A4 landscape; margin: 8mm; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <header class="header">
+    <h1>📋 Avaliação da Banca — Notas e Classificação</h1>
+    <p>Preencha as notas (0 a 10) e o sistema calcula automaticamente a nota final</p>
+    <div class="badge-group">
+      <span class="badge">💾 Salva automaticamente</span>
+      <span class="badge">📱 Responsivo</span>
+      <span class="badge">📄 Exporta PDF</span>
+      <span class="badge">📊 Ranking automático</span>
+    </div>
+  </header>
+
+  <!-- BARRA DE AÇÕES -->
+  <div class="acoes">
+    <button class="btn btn-success" onclick="adicionarEquipe()">➕ Adicionar Equipe</button>
+    <button class="btn btn-secondary" onclick="exportarJSON()">💾 Exportar JSON</button>
+    <button class="btn btn-secondary" onclick="document.getElementById('importarJSON').click()">📂 Importar JSON</button>
+    <input type="file" id="importarJSON" accept=".json" style="display:none" onchange="importarJSON(event)">
+    <button class="btn" onclick="window.print()">🖨️ Imprimir / PDF</button>
+    <button class="btn btn-whats" onclick="enviarWhatsApp()">📲 Enviar por WhatsApp</button>
+    <button class="btn btn-danger" onclick="limparTudo()">🗑️ Limpar Tudo</button>
+  </div>
+
+  <!-- TABELA -->
+  <div class="tabela-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Nº</th>
+          <th>Equipe / Projeto</th>
+          <th>Func.<br>25%</th>
+          <th>UX<br>20%</th>
+          <th>Criat.<br>20%</th>
+          <th>Conteúdo<br>15%</th>
+          <th>Tecnol.<br>10%</th>
+          <th>Apres.<br>10%</th>
+          <th>Final</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="tbodyEquipes"></tbody>
+    </table>
+  </div>
+
+  <!-- RANKING -->
+  <div class="ranking-card">
+    <h2>🏆 Ranking (por nota final)</h2>
+    <div id="rankingLista"></div>
+  </div>
+
+  <!-- ORIENTAÇÕES -->
+  <div class="orientacoes">
+    <h2>📌 Orientações importantes para a banca</h2>
+    <ol>
+      <li><strong>Avaliar com os mesmos critérios</strong> — todas as equipes, independentemente da categoria.</li>
+      <li><strong>Valorizar o que funciona</strong> — avaliar o projeto apresentado, não apenas a ideia.</li>
+      <li><strong>Considerar o nível dos estudantes</strong> — valorizar a aplicação do que foi ensinado.</li>
+      <li><strong>Não confundir complexidade com qualidade</strong> — projeto simples bem executado pode superar um ambicioso incompleto.</li>
+      <li><strong>Observar a participação da equipe</strong> — incentivar mais de um integrante a explicar.</li>
+      <li><strong>Registrar as notas logo após cada apresentação</strong> — evitar deixar tudo para o final.</li>
+    </ol>
+
+    <div class="formula">
+      N = 0,25·F + 0,20·U + 0,20·C + 0,15·Q + 0,10·T + 0,10·A
+    </div>
+
+    <p style="font-size:0.78rem; color:#64748b; line-height:1.6;">
+      <strong>Desempate sugerido:</strong> maior nota em Funcionalidade; persistindo, maior nota em Criatividade.
+    </p>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   CONFIGURAÇÃO
+   ============================================================ */
+const STORAGE_KEY = 'avaliacao_banca_v1';
+const PESOS = { func: 0.25, ux: 0.20, criat: 0.20, cont: 0.15, tecn: 0.10, apr: 0.10 };
+
+/* ============================================================
+   ESTADO
+   ============================================================ */
+let equipes = [];
+
+/* ============================================================
+   PERSISTÊNCIA (localStorage)
+   ============================================================ */
+function salvar() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(equipes));
+  } catch (e) {
+    console.error('Erro ao salvar:', e);
+  }
+}
+
+function carregar() {
+  try {
+    const dados = localStorage.getItem(STORAGE_KEY);
+    if (dados) {
+      equipes = JSON.parse(dados);
+      if (!Array.isArray(equipes) || equipes.length === 0) {
+        criarEquipesIniciais(19);
+      }
+    } else {
+      criarEquipesIniciais(19);
+    }
+  } catch (e) {
+    console.error('Erro ao carregar:', e);
+    criarEquipesIniciais(19);
+  }
+}
+
+function criarEquipesIniciais(qtd) {
+  equipes = [];
+  for (let i = 1; i <= qtd; i++) {
+    equipes.push({
+      id: Date.now() + i,
+      nome: '',
+      func: '', ux: '', criat: '', cont: '', tecn: '', apr: ''
+    });
+  }
+  salvar();
+}
+
+/* ============================================================
+   CÁLCULO DA NOTA FINAL
+   ============================================================ */
+function calcularFinal(eq) {
+  const n = (v) => {
+    const num = parseFloat(String(v).replace(',', '.'));
+    return isNaN(num) ? 0 : Math.min(10, Math.max(0, num));
+  };
+  const f = n(eq.func), u = n(eq.ux), c = n(eq.criat);
+  const q = n(eq.cont), t = n(eq.tecn), a = n(eq.apr);
+
+  // Se TODOS os campos estiverem vazios, não calcula
+  const vazios = [eq.func, eq.ux, eq.criat, eq.cont, eq.tecn, eq.apr]
+    .every(v => String(v).trim() === '');
+  if (vazios) return null;
+
+  const nota = f * PESOS.func + u * PESOS.ux + c * PESOS.criat +
+               q * PESOS.cont + t * PESOS.tecn + a * PESOS.apr;
+  return nota;
+}
+
+function formatarNota(nota) {
+  if (nota === null) return '—';
+  return nota.toFixed(2).replace('.', ',');
+}
+
+function classeNota(nota) {
+  if (nota === null) return '';
+  if (nota < 5) return 'baixa';
+  if (nota < 7) return 'media';
+  return '';
+}
+
+/* ============================================================
+   RENDERIZAÇÃO
+   ============================================================ */
+function renderizar() {
+  const tbody = document.getElementById('tbodyEquipes');
+  tbody.innerHTML = '';
+
+  equipes.forEach((eq, idx) => {
+    const final = calcularFinal(eq);
+    const tr = document.createElement('tr');
+
+    tr.innerHTML = `
+      <td><strong>${String(idx + 1).padStart(2, '0')}</strong></td>
+      <td class="col-equipe">
+        <input type="text" class="input-equipe" value="${eq.nome || ''}"
+               placeholder="Nome da equipe/projeto"
+               oninput="atualizarCampo(${idx}, 'nome', this.value)">
+      </td>
+      <td><input type="number" min="0" max="10" step="0.1" class="input-nota"
+                 value="${eq.func || ''}" oninput="atualizarCampo(${idx}, 'func', this.value)"></td>
+      <td><input type="number" min="0" max="10" step="0.1" class="input-nota"
+                 value="${eq.ux || ''}" oninput="atualizarCampo(${idx}, 'ux', this.value)"></td>
+      <td><input type="number" min="0" max="10" step="0.1" class="input-nota"
+                 value="${eq.criat || ''}" oninput="atualizarCampo(${idx}, 'criat', this.value)"></td>
+      <td><input type="number" min="0" max="10" step="0.1" class="input-nota"
+                 value="${eq.cont || ''}" oninput="atualizarCampo(${idx}, 'cont', this.value)"></td>
+      <td><input type="number" min="0" max="10" step="0.1" class="input-nota"
+                 value="${eq.tecn || ''}" oninput="atualizarCampo(${idx}, 'tecn', this.value)"></td>
+      <td><input type="number" min="0" max="10" step="0.1" class="input-nota"
+                 value="${eq.apr || ''}" oninput="atualizarCampo(${idx}, 'apr', this.value)"></td>
+      <td><span class="nota-final ${classeNota(final)}">${formatarNota(final)}</span></td>
+      <td><button class="btn-remover" onclick="removerEquipe(${idx})" title="Remover">×</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  renderizarRanking();
+}
+
+function renderizarRanking() {
+  const lista = document.getElementById('rankingLista');
+  const comNota = equipes
+    .map((eq, idx) => ({
+      nome: eq.nome || `Equipe ${String(idx + 1).padStart(2, '0')}`,
+      nota: calcularFinal(eq)
+    }))
+    .filter(e => e.nota !== null)
+    .sort((a, b) => b.nota - a.nota);
+
+  if (comNota.length === 0) {
+    lista.innerHTML = '<p style="color:#94a3b8; font-size:0.85rem; text-align:center; padding:12px;">Nenhuma nota lançada ainda.</p>';
+    return;
+  }
+
+  lista.innerHTML = comNota.map((e, i) => `
+    <div class="ranking-item">
+      <span class="pos">${i + 1}</span>
+      <span class="nome">${e.nome}</span>
+      <span class="nota">${formatarNota(e.nota)}</span>
+    </div>
+  `).join('');
+}
+
+/* ============================================================
+   AÇÕES
+   ============================================================ */
+function atualizarCampo(idx, campo, valor) {
+  equipes[idx][campo] = valor;
+  salvar();
+  // Atualiza nota final + ranking sem re-renderizar tudo (evita perder foco)
+  const tr = document.getElementById('tbodyEquipes').children[idx];
+  const final = calcularFinal(equipes[idx]);
+  const span = tr.querySelector('.nota-final');
+  span.textContent = formatarNota(final);
+  span.className = 'nota-final ' + classeNota(final);
+  renderizarRanking();
+}
+
+function adicionarEquipe() {
+  equipes.push({
+    id: Date.now(),
+    nome: '', func: '', ux: '', criat: '', cont: '', tecn: '', apr: ''
+  });
+  salvar();
+  renderizar();
+  toast('Equipe adicionada!');
+}
+
+function removerEquipe(idx) {
+  if (!confirm('Remover esta equipe?')) return;
+  equipes.splice(idx, 1);
+  salvar();
+  renderizar();
+  toast('Equipe removida.');
+}
+
+function limparTudo() {
+  if (!confirm('Isso apagará TODAS as notas. Tem certeza?')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  criarEquipesIniciais(19);
+  renderizar();
+  toast('Tudo limpo. 19 equipes recriadas.');
+}
+
+/* ============================================================
+   EXPORTAR / IMPORTAR JSON
+   ============================================================ */
+function exportarJSON() {
+  const dados = JSON.stringify(equipes, null, 2);
+  const blob = new Blob([dados], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const data = new Date().toISOString().slice(0, 10);
+  a.href = url;
+  a.download = `avaliacao-banca-${data}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('JSON exportado!');
+}
+
+function importarJSON(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const dados = JSON.parse(e.target.result);
+      if (!Array.isArray(dados)) throw new Error('Formato inválido');
+      equipes = dados;
+      salvar();
+      renderizar();
+      toast('JSON importado com sucesso!');
+    } catch (err) {
+      alert('Erro ao importar JSON: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+/* ============================================================
+   WHATSAPP
+   ============================================================ */
+function enviarWhatsApp() {
+  const comNota = equipes
+    .map((eq, idx) => ({
+      nome: eq.nome || `Equipe ${String(idx + 1).padStart(2, '0')}`,
+      nota: calcularFinal(eq)
+    }))
+    .filter(e => e.nota !== null)
+    .sort((a, b) => b.nota - a.nota);
+
+  if (comNota.length === 0) {
+    alert('Nenhuma nota lançada ainda.');
+    return;
+  }
+
+  let msg = '📋 *Avaliação da Banca — Resultado*\n\n';
+  msg += '🏆 *Ranking:*\n';
+  comNota.forEach((e, i) => {
+    msg += `${i + 1}. ${e.nome} — *${formatarNota(e.nota)}*\n`;
+  });
+  msg += '\n_Gerado automaticamente pelo sistema de avaliação._';
+
+  const url = 'https://wa.me/?text=' + encodeURIComponent(msg);
+  window.open(url, '_blank');
+}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+/* ============================================================
+   INICIALIZAÇÃO
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', () => {
+  carregar();
+  renderizar();
+});
+</script>
+
+</body>
+</html>
